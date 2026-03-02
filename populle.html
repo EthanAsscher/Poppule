@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Populle — Which Has More People? Population Guessing Game</title>
+
+  <!-- Google Analytics — uncomment and replace ID once set up -->
+  <!--
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+  -->
+
+  <meta name="google-site-verification" content="VERIFICATION-CODE-HERE" />
+
+  <!-- Google AdSense — uncomment once approved -->
+  <!--
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+  -->
+
+  <meta name="description" content="Which has more people — Tokyo or Canada? Test your population intuition in this addictive comparison game. Countries, cities, and mind-blowing wildcard matchups.">
+  <meta name="keywords" content="population game, which has more people, comparison game, geography quiz, wordle alternative, trivia game">
+
+  <meta property="og:title" content="Populle — Which Has More People?">
+  <meta property="og:description" content="Tokyo or Canada? Lagos or Australia? Test your population intuition.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://populle.com">
+  <meta property="og:image" content="https://populle.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Populle — Which Has More People?">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Populle",
+    "url": "https://populle.com",
+    "description": "Which has more people? A free population comparison game with countries, cities, and wildcard matchups.",
+    "applicationCategory": "Game",
+    "genre": "Trivia",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "author": { "@type": "Organization", "name": "BULB Studios" }
+  }
+  </script>
+
+  <link rel="canonical" href="https://populle.com">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    ::selection { background: rgba(99,102,241,0.3); }
+
+    body {
+      font-family: 'Outfit', -apple-system, sans-serif;
+      background: #06060f;
+      color: #fff;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── Background orbs ── */
+    .bg-orb {
+      position: fixed; border-radius: 50%; pointer-events: none; z-index: 0;
+    }
+    .bg-orb-1 {
+      top: 20%; left: 30%; width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%);
+      transform: translate(-50%,-50%);
+      animation: float 8s ease-in-out infinite;
+    }
+    .bg-orb-2 {
+      top: 70%; left: 70%; width: 350px; height: 350px;
+      background: radial-gradient(circle, rgba(168,85,247,0.06) 0%, transparent 70%);
+      transform: translate(-50%,-50%);
+      animation: float 10s ease-in-out infinite reverse;
+    }
+
+    .container { max-width: 580px; margin: 0 auto; padding: 16px 16px 60px; position: relative; z-index: 1; }
+
+    /* ── Header ── */
+    .header { text-align: center; margin-bottom: 16px; }
+    .header-icon { font-size: 28px; margin-bottom: 4px; }
+    .header h1 {
+      font-family: 'JetBrains Mono', monospace; font-size: 30px; font-weight: 700;
+      letter-spacing: 6px; text-shadow: 0 0 30px rgba(99,102,241,0.2);
+    }
+    .header-sub { font-size: 13px; color: rgba(255,255,255,0.3); margin-top: 4px; letter-spacing: 1px; }
+
+    /* ── Stats ── */
+    .stats {
+      display: flex; justify-content: center; align-items: center; gap: 24px;
+      padding: 10px 0; margin-bottom: 16px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .stat { text-align: center; }
+    .stat-num { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 700; }
+    .stat-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-top: 2px; }
+    .stat-div { width: 1px; height: 24px; background: rgba(255,255,255,0.06); }
+
+    /* ── Streak Banner ── */
+    .streak-banner {
+      text-align: center; font-size: 13px; font-weight: 600;
+      color: #f59e0b; padding: 6px 0; margin-bottom: 12px;
+      letter-spacing: 1px; animation: fadeUp 0.3s ease-out;
+    }
+
+    /* ── VS Container ── */
+    .vs-container {
+      display: flex; gap: 10px; margin-bottom: 14px; position: relative; align-items: stretch;
+      transition: all 0.2s ease;
+    }
+    .vs-badge {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
+      color: rgba(255,255,255,0.6); background: rgba(20,20,40,0.95);
+      border: 2px solid rgba(99,102,241,0.25);
+      width: 38px; height: 38px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 10; letter-spacing: 1px;
+    }
+
+    /* ── Cards ── */
+    .card {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 24px 14px; min-height: 250px;
+      border-radius: 16px; border: 1px solid rgba(255,255,255,0.06);
+      transition: all 0.35s ease; position: relative; cursor: pointer;
+    }
+    .card:hover { transform: scale(1.02); }
+    .card.revealed { cursor: default; }
+    .card.revealed:hover { transform: none; }
+    .card-left { background: linear-gradient(160deg, rgba(99,102,241,0.07) 0%, rgba(99,102,241,0.01) 100%); }
+    .card-right { background: linear-gradient(160deg, rgba(168,85,247,0.07) 0%, rgba(168,85,247,0.01) 100%); }
+    .card-left:hover { border-color: rgba(99,102,241,0.3); }
+    .card-right:hover { border-color: rgba(168,85,247,0.3); }
+    .card.winner { background: linear-gradient(160deg, rgba(34,197,94,0.1) 0%, rgba(34,197,94,0.02) 100%); border-color: rgba(34,197,94,0.25); }
+    .card.loser { background: linear-gradient(160deg, rgba(239,68,68,0.06) 0%, rgba(239,68,68,0.01) 100%); border-color: rgba(239,68,68,0.15); }
+
+    .card-type {
+      font-size: 9px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+      color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.05);
+      padding: 3px 12px; border-radius: 20px; margin-bottom: 12px;
+    }
+    .card-flag { font-size: 36px; margin-bottom: 10px; }
+    .card-name {
+      font-size: 17px; font-weight: 700; color: #fff; text-align: center;
+      line-height: 1.3; margin-bottom: 6px; max-width: 200px;
+    }
+    .card-tap {
+      margin-top: 16px; font-size: 10px; color: rgba(255,255,255,0.15);
+      letter-spacing: 2px; text-transform: uppercase;
+    }
+
+    /* ── Reveal elements ── */
+    .pop-reveal { animation: popReveal 0.4s ease-out; margin-top: 8px; text-align: center; }
+    .pop-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 4px; }
+    .pop-number {
+      font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 700;
+      text-shadow: 0 0 20px rgba(34,197,94,0.3);
+    }
+    .pop-number.win { color: #22c55e; }
+    .pop-number.lose { color: #ef4444; text-shadow: none; }
+    .pop-full { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.2); margin-top: 2px; }
+
+    .pick-badge {
+      position: absolute; top: 10px; right: 10px; font-size: 10px; font-weight: 700;
+      padding: 2px 10px; border-radius: 20px; letter-spacing: 1px;
+    }
+    .pick-correct { color: #22c55e; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.25); }
+    .pick-wrong { color: #ef4444; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); }
+
+    .crown { position: absolute; top: -12px; font-size: 22px; animation: crownDrop 0.4s ease-out; }
+
+    /* ── Fact Card ── */
+    .fact-card {
+      background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 10px; padding: 12px 16px; margin-bottom: 14px;
+      text-align: center; animation: fadeUp 0.4s ease-out;
+    }
+    .fact-label { font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: rgba(99,102,241,0.5); margin-bottom: 4px; }
+    .fact-text { font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.5; font-style: italic; }
+
+    /* ── Buttons ── */
+    .next-btn {
+      display: block; width: 100%; padding: 15px 0;
+      background: rgba(99,102,241,0.7); border: none; border-radius: 10px;
+      color: #fff; font-size: 15px; font-weight: 600; letter-spacing: 1px;
+      cursor: pointer; transition: all 0.2s ease;
+      box-shadow: 0 4px 16px rgba(99,102,241,0.2); margin-bottom: 14px;
+    }
+    .next-btn:hover { background: rgba(99,102,241,0.9); transform: translateY(-2px); }
+
+    /* ── Game Over ── */
+    .gameover { text-align: center; padding: 20px 0; animation: fadeUp 0.5s ease-out; }
+    .go-title { font-size: 26px; font-weight: 800; margin-bottom: 4px; }
+    .go-sub { font-size: 15px; color: rgba(255,255,255,0.4); margin-bottom: 20px; }
+    .go-btns { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .share-btn {
+      padding: 10px 22px; background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;
+      color: rgba(255,255,255,0.5); font-size: 13px; font-weight: 500;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .share-btn:hover { background: rgba(255,255,255,0.1); }
+    .play-again-btn {
+      padding: 10px 28px; background: rgba(99,102,241,0.7); border: none;
+      border-radius: 8px; color: #fff; font-size: 14px; font-weight: 600;
+      letter-spacing: 1px; cursor: pointer; transition: all 0.2s ease;
+      box-shadow: 0 4px 16px rgba(99,102,241,0.2);
+    }
+    .play-again-btn:hover { background: rgba(99,102,241,0.9); transform: translateY(-1px); }
+
+    /* ── Ad Spot ── */
+    .ad-spot { min-height: 90px; display: none; align-items: center; justify-content: center; margin: 16px 0; }
+    .side-ad { position: fixed; top: 50%; transform: translateY(-50%); width: 160px; min-height: 600px; display: none; }
+    .side-ad-left { left: calc(50% - 420px); }
+    .side-ad-right { right: calc(50% - 420px); }
+    @media (min-width: 1100px) { .side-ad { display: flex; align-items: center; justify-content: center; } }
+
+    /* ── More Games ── */
+    .more-games { margin-top: 28px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.04); text-align: center; }
+    .more-games-title { font-size: 11px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.2); margin-bottom: 12px; }
+    .game-links { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .game-link {
+      display: flex; align-items: center; gap: 8px; padding: 10px 16px;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px; text-decoration: none; color: #fff; font-size: 13px; transition: all 0.2s;
+    }
+    .game-link:hover { border-color: rgba(255,255,255,0.15); transform: translateY(-2px); }
+    .game-link-icon { font-size: 20px; }
+    .game-link-name { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; letter-spacing: 1px; }
+    .game-link-desc { font-size: 10px; color: rgba(255,255,255,0.3); }
+
+    /* ── Footer ── */
+    .footer { text-align: center; margin-top: 24px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.04); }
+    .footer-text { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.15); }
+    .footer-links { margin-top: 6px; }
+    .footer-links a { font-size: 10px; color: rgba(255,255,255,0.2); text-decoration: none; margin: 0 6px; }
+    .footer-links a:hover { color: rgba(255,255,255,0.5); }
+
+    .hidden { display: none !important; }
+
+    @keyframes popReveal { from { opacity:0; transform:scale(0.85) translateY(6px); } to { opacity:1; transform:scale(1) translateY(0); } }
+    @keyframes crownDrop { from { opacity:0; transform:translateY(-14px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes float { 0%,100% { transform:translate(-50%,-50%) scale(1); } 50% { transform:translate(-50%,-50%) scale(1.05); } }
+
+    @media (max-width: 480px) {
+      .header h1 { font-size: 24px; letter-spacing: 4px; }
+      .card { min-height: 200px; padding: 18px 10px; }
+      .card-name { font-size: 15px; }
+      .pop-number { font-size: 20px; }
+      .game-links { flex-direction: column; align-items: center; }
+      .game-link { width: 100%; max-width: 280px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+
+<div class="side-ad side-ad-left" id="ad-left"></div>
+<div class="side-ad side-ad-right" id="ad-right"></div>
+
+<div class="container">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-icon">🌍</div>
+    <h1>POPULLE</h1>
+    <p class="header-sub">Which has more people?</p>
+  </header>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat"><div class="stat-num" id="stat-streak">0</div><div class="stat-label">Streak</div></div>
+    <div class="stat-div"></div>
+    <div class="stat"><div class="stat-num" id="stat-best">0</div><div class="stat-label">Best</div></div>
+    <div class="stat-div"></div>
+    <div class="stat"><div class="stat-num" id="stat-acc">0%</div><div class="stat-label">Accuracy</div></div>
+  </div>
+
+  <!-- Streak Banner -->
+  <div class="streak-banner hidden" id="streak-banner"></div>
+
+  <!-- VS Container -->
+  <div class="vs-container" id="vs-container">
+    <div class="card card-left" id="card-left" onclick="choose('left')">
+      <div class="card-type" id="type-left"></div>
+      <div class="card-flag" id="flag-left"></div>
+      <div class="card-name" id="name-left"></div>
+      <div class="card-tap" id="tap-left">Tap to choose</div>
+    </div>
+    <div class="vs-badge">VS</div>
+    <div class="card card-right" id="card-right" onclick="choose('right')">
+      <div class="card-type" id="type-right"></div>
+      <div class="card-flag" id="flag-right"></div>
+      <div class="card-name" id="name-right"></div>
+      <div class="card-tap" id="tap-right">Tap to choose</div>
+    </div>
+  </div>
+
+  <!-- Fact Card -->
+  <div class="fact-card hidden" id="fact-card">
+    <div class="fact-label" id="fact-label"></div>
+    <div class="fact-text" id="fact-text"></div>
+  </div>
+
+  <!-- Next Button -->
+  <button class="next-btn hidden" id="next-btn" onclick="nextPair()">Next pair →</button>
+
+  <!-- Game Over -->
+  <div class="gameover hidden" id="gameover"></div>
+
+  <!-- Ad Spot -->
+  <div class="ad-spot" id="ad-postgame"></div>
+
+  <!-- More Games -->
+  <div class="more-games">
+    <div class="more-games-title">More Games</div>
+    <div class="game-links">
+      <a href="https://historale.com" class="game-link" target="_blank">
+        <span class="game-link-icon">📜</span>
+        <div>
+          <div class="game-link-name">Historale</div>
+          <div class="game-link-desc">Real or fake history?</div>
+        </div>
+      </a>
+      <a href="https://costguesser.com" class="game-link" target="_blank">
+        <span class="game-link-icon">💰</span>
+        <div>
+          <div class="game-link-name">Cost Guesser</div>
+          <div class="game-link-desc">Can you guess the price?</div>
+        </div>
+      </a>
+      <a href="#" class="game-link">
+        <span class="game-link-icon">⚖️</span>
+        <div>
+          <div class="game-link-name">Coming Soon</div>
+          <div class="game-link-desc">Real law or legal fiction?</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-text">Population data approximate · 2024 estimates</div>
+    <div class="footer-links">
+      <a href="/about.html">About</a>
+      <a href="/privacy.html">Privacy</a>
+      <span style="font-size:10px;color:rgba(255,255,255,0.1)">© 2026 Populle</span>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+// ─── Population Database ────────────────────────────────────────────────────
+const ITEMS=[
+  // COUNTRIES
+  {name:"China",population:1425000000,type:"country",flag:"🇨🇳",fact:"Despite being #1 for decades, India officially overtook China in 2023."},
+  {name:"India",population:1428000000,type:"country",flag:"🇮🇳",fact:"India adds roughly the population of Australia every single year."},
+  {name:"United States",population:335000000,type:"country",flag:"🇺🇸",fact:"The US is the 3rd most populous country but has just 4.2% of the world's people."},
+  {name:"Indonesia",population:277000000,type:"country",flag:"🇮🇩",fact:"Spread across 17,000 islands — the world's largest archipelago nation."},
+  {name:"Pakistan",population:230000000,type:"country",flag:"🇵🇰",fact:"Pakistan's population has roughly quintupled since 1960."},
+  {name:"Brazil",population:216000000,type:"country",flag:"🇧🇷",fact:"São Paulo alone has more people than many European countries."},
+  {name:"Nigeria",population:224000000,type:"country",flag:"🇳🇬",fact:"Projected to become the 3rd most populous country by 2050."},
+  {name:"Bangladesh",population:173000000,type:"country",flag:"🇧🇩",fact:"About the size of Iowa — but with 173 million people crammed in."},
+  {name:"Russia",population:144000000,type:"country",flag:"🇷🇺",fact:"The world's largest country by area, but only 9th by population."},
+  {name:"Japan",population:123000000,type:"country",flag:"🇯🇵",fact:"Japan's population has been shrinking since 2010 — it peaked at 128 million."},
+  {name:"Mexico",population:129000000,type:"country",flag:"🇲🇽",fact:"Mexico City's metro area alone holds about 22 million people."},
+  {name:"Ethiopia",population:126000000,type:"country",flag:"🇪🇹",fact:"Africa's second most populous country, and one of the fastest growing."},
+  {name:"Philippines",population:117000000,type:"country",flag:"🇵🇭",fact:"Over 7,600 islands, but most people live on just 11 of them."},
+  {name:"Egypt",population:104000000,type:"country",flag:"🇪🇬",fact:"95% of Egyptians live along the Nile — the rest is desert."},
+  {name:"Vietnam",population:99000000,type:"country",flag:"🇻🇳",fact:"Vietnam is projected to cross 100 million any day now."},
+  {name:"Iran",population:89000000,type:"country",flag:"🇮🇷",fact:"Iran's population quadrupled from 1950 to 2024."},
+  {name:"Turkey",population:85000000,type:"country",flag:"🇹🇷",fact:"Istanbul alone has more people than most European countries at 16 million."},
+  {name:"Germany",population:84000000,type:"country",flag:"🇩🇪",fact:"Europe's most populous country, and its largest economy."},
+  {name:"Thailand",population:72000000,type:"country",flag:"🇹🇭",fact:"Bangkok's metro area has about 15 million — the rest is mostly rural."},
+  {name:"United Kingdom",population:68000000,type:"country",flag:"🇬🇧",fact:"England alone has 56 million — Scotland, Wales, and NI share the rest."},
+  {name:"France",population:68000000,type:"country",flag:"🇫🇷",fact:"France's birth rate is among the highest in Europe."},
+  {name:"Tanzania",population:65000000,type:"country",flag:"🇹🇿",fact:"One of the fastest growing populations in the world — projected to triple by 2100."},
+  {name:"Italy",population:59000000,type:"country",flag:"🇮🇹",fact:"Italy's population is declining — it has one of the world's lowest birth rates."},
+  {name:"Kenya",population:55000000,type:"country",flag:"🇰🇪",fact:"Nairobi is one of Africa's major tech hubs — sometimes called 'Silicon Savannah'."},
+  {name:"South Korea",population:52000000,type:"country",flag:"🇰🇷",fact:"South Korea has the world's lowest fertility rate at 0.72 children per woman."},
+  {name:"Colombia",population:52000000,type:"country",flag:"🇨🇴",fact:"Bogotá sits at 8,600 feet — one of the highest capital cities in the world."},
+  {name:"Spain",population:48000000,type:"country",flag:"🇪🇸",fact:"Half of Spain's interior is losing population — young people flock to Madrid and Barcelona."},
+  {name:"Argentina",population:46000000,type:"country",flag:"🇦🇷",fact:"One-third of all Argentines live in Greater Buenos Aires."},
+  {name:"Canada",population:40000000,type:"country",flag:"🇨🇦",fact:"The second-largest country by area, but 90% live within 100 miles of the US border."},
+  {name:"Poland",population:38000000,type:"country",flag:"🇵🇱",fact:"More people of Polish descent live in Chicago than in most Polish cities."},
+  {name:"Saudi Arabia",population:36000000,type:"country",flag:"🇸🇦",fact:"About 38% of the population are foreign workers and their dependents."},
+  {name:"Peru",population:34000000,type:"country",flag:"🇵🇪",fact:"Lima holds about a third of Peru's entire population."},
+  {name:"Australia",population:26000000,type:"country",flag:"🇦🇺",fact:"About the same land area as the continental US, but with 8% of its population."},
+  {name:"North Korea",population:26000000,type:"country",flag:"🇰🇵",fact:"About half the population of South Korea, despite being slightly larger in area."},
+  {name:"Taiwan",population:23500000,type:"country",flag:"🇹🇼",fact:"One of the most densely populated places on Earth at 1,700 people per square mile."},
+  {name:"Netherlands",population:17800000,type:"country",flag:"🇳🇱",fact:"One-third of the Netherlands is below sea level — kept dry by an incredible dike system."},
+  {name:"Cuba",population:11300000,type:"country",flag:"🇨🇺",fact:"About 20% of Cuba's population has emigrated — mostly to the US."},
+  {name:"Sweden",population:10500000,type:"country",flag:"🇸🇪",fact:"Sweden has more heavy metal bands per capita than any other country."},
+  {name:"Greece",population:10400000,type:"country",flag:"🇬🇷",fact:"Greece has more archaeological museums than any other country in the world."},
+  {name:"Portugal",population:10300000,type:"country",flag:"🇵🇹",fact:"Lisbon is Europe's second-oldest capital — only Athens is older."},
+  {name:"Switzerland",population:8800000,type:"country",flag:"🇨🇭",fact:"About 25% of Swiss residents are foreign nationals."},
+  {name:"Hong Kong",population:7400000,type:"country",flag:"🇭🇰",fact:"Hong Kong has more skyscrapers than any city in the world — over 500."},
+  {name:"Singapore",population:5900000,type:"country",flag:"🇸🇬",fact:"The entire country is smaller than New York City — yet has 6 million people."},
+  {name:"Finland",population:5600000,type:"country",flag:"🇫🇮",fact:"Finland has about 3.2 million saunas — roughly one per household."},
+  {name:"Norway",population:5500000,type:"country",flag:"🇳🇴",fact:"One of the wealthiest countries per capita, thanks to its oil fund."},
+  {name:"New Zealand",population:5200000,type:"country",flag:"🇳🇿",fact:"There are about 6 sheep for every person in New Zealand."},
+  {name:"Ireland",population:5100000,type:"country",flag:"🇮🇪",fact:"Ireland's population is STILL lower than before the 1845 Great Famine (8.2 million)."},
+  {name:"Croatia",population:3900000,type:"country",flag:"🇭🇷",fact:"Croatia has over 1,000 islands — but only about 50 are inhabited."},
+  {name:"Mongolia",population:3400000,type:"country",flag:"🇲🇳",fact:"The least densely populated country — 2 people per square kilometer."},
+  {name:"Jamaica",population:2800000,type:"country",flag:"🇯🇲",fact:"Jamaica has produced more Olympic sprinting medals per capita than any other nation."},
+  {name:"Luxembourg",population:660000,type:"country",flag:"🇱🇺",fact:"Nearly half the workforce commutes in daily from France, Belgium, and Germany."},
+  {name:"Bhutan",population:780000,type:"country",flag:"🇧🇹",fact:"The only carbon-negative country in the world."},
+  {name:"Iceland",population:380000,type:"country",flag:"🇮🇸",fact:"So few people that they have an app to check if you're related before dating someone."},
+  {name:"Monaco",population:39000,type:"country",flag:"🇲🇨",fact:"The most densely populated country on Earth — 49,000 people per square mile."},
+  {name:"Tuvalu",population:11200,type:"country",flag:"🇹🇻",fact:"The 4th smallest country — and one of the most threatened by rising sea levels."},
+  {name:"Vatican City",population:800,type:"country",flag:"🇻🇦",fact:"The world's smallest country — about 800 residents in 0.17 square miles."},
+  // CITIES
+  {name:"Tokyo metro area",population:37400000,type:"city",flag:"🏙️",fact:"The largest metro area on Earth — more people than Canada."},
+  {name:"Delhi metro area",population:32900000,type:"city",flag:"🏙️",fact:"Delhi is projected to overtake Tokyo as the world's largest city by 2030."},
+  {name:"Shanghai",population:29200000,type:"city",flag:"🏙️",fact:"Shanghai's population has more than doubled since 1990."},
+  {name:"São Paulo metro area",population:22400000,type:"city",flag:"🏙️",fact:"The largest city in the Southern Hemisphere."},
+  {name:"Cairo metro area",population:22000000,type:"city",flag:"🏙️",fact:"Greater Cairo holds about 20% of Egypt's entire population."},
+  {name:"Mumbai metro area",population:21700000,type:"city",flag:"🏙️",fact:"Some areas of Mumbai have densities over 100,000 people per square mile."},
+  {name:"Lagos",population:16600000,type:"city",flag:"🏙️",fact:"Africa's largest city — projected to reach 30 million by 2050."},
+  {name:"Istanbul",population:16000000,type:"city",flag:"🏙️",fact:"The only major city spanning two continents — Europe and Asia."},
+  {name:"Moscow",population:13000000,type:"city",flag:"🏙️",fact:"Moscow's metro system carries 9 million passengers daily."},
+  {name:"Paris metro area",population:12000000,type:"city",flag:"🏙️",fact:"Paris proper is tiny — just 41 square miles. The metro area spreads much further."},
+  {name:"Lima metro area",population:11300000,type:"city",flag:"🏙️",fact:"A third of Peru's population lives in Lima."},
+  {name:"Bangkok metro area",population:11000000,type:"city",flag:"🏙️",fact:"Bangkok's full ceremonial name is 168 characters long — the world's longest city name."},
+  {name:"Greater London",population:9700000,type:"city",flag:"🏙️",fact:"Over 300 languages are spoken in London — the most linguistically diverse city on Earth."},
+  {name:"Chicago metro area",population:9400000,type:"city",flag:"🏙️",fact:"The Chicago metro has more people than Sweden."},
+  {name:"New York City",population:8300000,type:"city",flag:"🏙️",fact:"Manhattan's daytime population swells to about 4 million with commuters."},
+  {name:"Toronto metro area",population:6500000,type:"city",flag:"🏙️",fact:"About half of Toronto's population was born outside Canada."},
+  {name:"Singapore (city-state)",population:5900000,type:"city",flag:"🏙️",fact:"One of only three surviving city-states in the world."},
+  {name:"Sydney",population:5400000,type:"city",flag:"🏙️",fact:"About 20% of all Australians live in Sydney."},
+  {name:"Melbourne",population:5200000,type:"city",flag:"🏙️",fact:"Melbourne has the largest Greek population of any city outside of Greece."},
+  {name:"Los Angeles (city proper)",population:3900000,type:"city",flag:"🏙️",fact:"The metro area has 13 million — but the city itself is smaller than you'd think."},
+  {name:"Berlin",population:3700000,type:"city",flag:"🏙️",fact:"Berlin has more bridges than Venice — around 960."},
+  {name:"Dubai",population:3600000,type:"city",flag:"🏙️",fact:"About 85% of Dubai's population are expatriates."},
+  {name:"Rome",population:2800000,type:"city",flag:"🏙️",fact:"Rome has been continuously inhabited for over 2,700 years."},
+  {name:"Paris (city proper)",population:2100000,type:"city",flag:"🏙️",fact:"The city of Paris has fewer people than you'd expect — most live in the suburbs."},
+  {name:"Vienna",population:2000000,type:"city",flag:"🏙️",fact:"Consistently ranked the world's most liveable city."},
+  // US STATES
+  {name:"California",population:39000000,type:"state",flag:"🇺🇸",fact:"If California were a country, it would have the 5th largest economy in the world."},
+  {name:"Texas",population:30500000,type:"state",flag:"🇺🇸",fact:"Texas gains about 1,000 new residents per day from domestic migration."},
+  {name:"Florida",population:22600000,type:"state",flag:"🇺🇸",fact:"About 1,000 people move to Florida every single day."},
+  {name:"New York State",population:19500000,type:"state",flag:"🇺🇸",fact:"Upstate New York has been losing population for decades while NYC grows."},
+  {name:"Illinois",population:12500000,type:"state",flag:"🇺🇸",fact:"Illinois has been losing residents for nearly a decade — mostly to Sun Belt states."},
+  {name:"Ohio",population:11800000,type:"state",flag:"🇺🇸",fact:"Ohio has produced more US presidents (8) than any other state."},
+  {name:"Georgia (US state)",population:11000000,type:"state",flag:"🇺🇸",fact:"Atlanta's metro area holds about half the state's entire population."},
+  {name:"Michigan",population:10000000,type:"state",flag:"🇺🇸",fact:"Michigan has more coastline than any state except Alaska, thanks to the Great Lakes."},
+  {name:"Massachusetts",population:7000000,type:"state",flag:"🇺🇸",fact:"More universities and colleges per capita than any other state."},
+  {name:"Colorado",population:5900000,type:"state",flag:"🇺🇸",fact:"Colorado's population has nearly doubled since 1990."},
+  {name:"Oregon",population:4200000,type:"state",flag:"🇺🇸",fact:"Portland holds about a third of Oregon's population."},
+  {name:"Wyoming",population:580000,type:"state",flag:"🇺🇸",fact:"The least populous US state — it has more pronghorn antelope than people."},
+  {name:"Vermont",population:647000,type:"state",flag:"🇺🇸",fact:"Burlington, its largest city, has just 45,000 people."},
+  {name:"Alaska",population:733000,type:"state",flag:"🇺🇸",fact:"The largest state by area but 3rd smallest by population."},
+  {name:"Hawaii",population:1440000,type:"state",flag:"🇺🇸",fact:"About 70% of Hawaii's population lives on the island of Oahu."},
+  // WILD
+  {name:"All humans who have ever lived",population:109000000000,type:"wild",flag:"💀",fact:"About 109 billion humans have ever been born. 7% of them are alive right now."},
+  {name:"Total world population today",population:8100000000,type:"wild",flag:"🌍",fact:"We passed 8 billion in November 2022. The UN projects a peak around 10.4 billion in the 2080s."},
+  {name:"Facebook monthly active users",population:3050000000,type:"wild",flag:"📱",fact:"More people use Facebook monthly than live in any single country."},
+  {name:"People who speak English (total)",population:1500000000,type:"wild",flag:"🗣️",fact:"Most English speakers learned it as a second language — only 400 million are native."},
+  {name:"Number of chickens alive right now",population:33000000000,type:"wild",flag:"🐔",fact:"There are about 4 chickens for every human on Earth."},
+  {name:"Number of cattle alive right now",population:1000000000,type:"wild",flag:"🐄",fact:"About 1 billion cows — roughly 1 for every 8 humans."},
+  {name:"People who speak Mandarin natively",population:920000000,type:"wild",flag:"🗣️",fact:"The most spoken native language — nearly 1 in 8 humans speak it at home."},
+  {name:"Spotify monthly active users",population:626000000,type:"wild",flag:"🎵",fact:"More monthly users than the population of the European Union."},
+  {name:"Number of dogs alive right now",population:500000000,type:"wild",flag:"🐕",fact:"About 500 million dogs globally — 75% are strays, not pets."},
+  {name:"Number of cats alive right now",population:600000000,type:"wild",flag:"🐈",fact:"About 600 million cats, with roughly 220 million kept as pets."},
+  {name:"People who speak French (total)",population:321000000,type:"wild",flag:"🗣️",fact:"French is an official language in 29 countries across 5 continents."},
+  {name:"People alive during Julius Caesar's time",population:200000000,type:"wild",flag:"🏛️",fact:"The entire world population in 44 BC was less than modern-day Brazil."},
+  {name:"Total world population in 1800",population:1000000000,type:"wild",flag:"📜",fact:"It took all of human history to reach 1 billion. Then just 200 years to add 7 billion more."},
+  {name:"Total world population in 1900",population:1600000000,type:"wild",flag:"📜",fact:"1.6 billion — it's now quintupled in just over a century."},
+  {name:"People born each day (global births)",population:385000,type:"wild",flag:"👶",fact:"About 385,000 babies are born every day — that's 267 per minute."},
+  {name:"People in the air right now (at any moment)",population:1300000,type:"wild",flag:"✈️",fact:"At any given moment, over a million humans are airborne in commercial flights."},
+  {name:"Active US military personnel",population:1390000,type:"wild",flag:"🎖️",fact:"The third-largest military in the world, after China and India."},
+  {name:"Number of rats in New York City",population:3000000,type:"wild",flag:"🐀",fact:"Roughly one rat for every 3 New Yorkers — though some estimates go much higher."},
+  {name:"A sold-out MCG",population:100024,type:"wild",flag:"🏟️",fact:"The Melbourne Cricket Ground — one of the largest stadiums in the world."},
+  {name:"A sold-out Wembley Stadium",population:90000,type:"wild",flag:"🏟️",fact:"England's national stadium — the largest in the UK."},
+  {name:"Mall of America daily visitors",population:120000,type:"wild",flag:"🛍️",fact:"More daily visitors than the population of many small island nations."},
+  {name:"The entire continent of Antarctica",population:4500,type:"wild",flag:"🧊",fact:"No permanent residents — just rotating scientists at research stations."},
+  {name:"People living in the Sahara Desert",population:2500000,type:"wild",flag:"🏜️",fact:"The Sahara is roughly the size of the US — but with the population of a small city."},
+  {name:"People living in Greenland",population:56000,type:"wild",flag:"🇬🇱",fact:"The world's largest island has fewer people than most suburbs."},
+  {name:"Number of billionaires worldwide",population:2781,type:"wild",flag:"💰",fact:"Less than 3,000 people control over $14 trillion in wealth."},
+  {name:"Passengers on a fully loaded A380",population:853,type:"wild",flag:"✈️",fact:"In all-economy configuration — a small village in the sky."},
+  {name:"A Tokyo subway train at rush hour",population:2500,type:"wild",flag:"🚇",fact:"White-gloved 'pushers' help cram passengers into trains at 200% capacity."},
+  {name:"Netflix subscribers worldwide",population:260000000,type:"wild",flag:"📺",fact:"More subscribers than the population of every European country."},
+  {name:"People who die each day (globally)",population:180000,type:"wild",flag:"⚰️",fact:"About 180,000 people die every day — roughly 2 per second."},
+  {name:"Active Wikipedia editors",population:44000,type:"wild",flag:"📖",fact:"Only about 44,000 people regularly edit Wikipedia — yet it's the 7th most visited site."},
+  {name:"Prisoners in the US right now",population:1900000,type:"wild",flag:"⚖️",fact:"The US has the highest incarceration rate in the world."},
+  {name:"People living above 4,500m elevation",population:140000000,type:"wild",flag:"🏔️",fact:"About 140 million people live in high-altitude regions in the Andes, Himalayas, and Ethiopian Highlands."},
+  {name:"Twins born each year worldwide",population:1600000,type:"wild",flag:"👯",fact:"About 1.6 million pairs of twins are born annually — the rate has been rising."},
+  {name:"Redheads worldwide",population:150000000,type:"wild",flag:"🧑‍🦰",fact:"Only about 1-2% of the world's population has red hair."},
+  {name:"Left-handed people worldwide",population:810000000,type:"wild",flag:"✋",fact:"About 10% of the world is left-handed. The proportion has been stable for millennia."},
+];
+
+// ─── State ──────────────────────────────────────────────────────────────────
+let pairs = [];
+let pairIdx = 0;
+let streak = 0;
+let bestStreak = parseInt(localStorage.getItem('pop-best') || '0');
+let totalPlayed = parseInt(localStorage.getItem('pop-played') || '0');
+let totalCorrect = parseInt(localStorage.getItem('pop-correct') || '0');
+let phase = "guess"; // guess, reveal, gameover
+let currentLeft, currentRight, winner;
+
+// ─── Smart Pairing Engine ───────────────────────────────────────────────────
+function getMaxLogRatio(a, b) {
+  const bothWild = a.type==="wild" && b.type==="wild";
+  const hasWild = a.type==="wild" || b.type==="wild";
+  const sameType = a.type === b.type;
+  if (bothWild) return 1.3;
+  if (hasWild) return 1.2;
+  if (sameType) return 0.9;
+  return 1.1;
+}
+
+function isGoodPair(a, b) {
+  if (a.name === b.name || a.population === b.population) return false;
+  const logDiff = Math.abs(Math.log10(Math.max(a.population,1)) - Math.log10(Math.max(b.population,1)));
+  return logDiff <= getMaxLogRatio(a, b) && logDiff >= 0.02;
+}
+
+function generatePairs() {
+  const p = []; const used = new Set(); let att = 0;
+  while (p.length < 80 && att < 2000) {
+    att++;
+    const a = ITEMS[Math.floor(Math.random() * ITEMS.length)];
+    const b = ITEMS[Math.floor(Math.random() * ITEMS.length)];
+    const key = [a.name, b.name].sort().join("|");
+    if (!used.has(key) && isGoodPair(a, b)) {
+      used.add(key);
+      p.push(Math.random() < 0.5 ? [a, b] : [b, a]);
+    }
+  }
+  for (let i = p.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [p[i],p[j]]=[p[j],p[i]]; }
+  return p;
+}
+
+// ─── Formatting ─────────────────────────────────────────────────────────────
+function fmtPop(n) {
+  if (n >= 1000000000) return (n/1000000000).toFixed(2) + "B";
+  if (n >= 1000000) return (n/1000000).toFixed(1) + "M";
+  if (n >= 1000) return (n/1000).toFixed(1) + "K";
+  return n.toLocaleString();
+}
+function fmtFull(n) { return n.toLocaleString(); }
+
+// ─── Rendering ──────────────────────────────────────────────────────────────
+function updateStats() {
+  document.getElementById('stat-streak').textContent = streak;
+  document.getElementById('stat-best').textContent = bestStreak;
+  document.getElementById('stat-acc').textContent = totalPlayed > 0 ? Math.round(totalCorrect/totalPlayed*100)+'%' : '0%';
+
+  const sb = document.getElementById('streak-banner');
+  if (streak >= 3 && phase !== "gameover") {
+    sb.classList.remove('hidden');
+    const fire = streak >= 15 ? "🔥🔥🔥🔥" : streak >= 10 ? "🔥🔥🔥" : streak >= 5 ? "🔥🔥" : "🔥";
+    sb.textContent = fire + " " + streak + " in a row!";
+  } else {
+    sb.classList.add('hidden');
+  }
+}
+
+function renderPair() {
+  currentLeft = pairs[pairIdx % pairs.length][0];
+  currentRight = pairs[pairIdx % pairs.length][1];
+  winner = currentLeft.population >= currentRight.population ? "left" : "right";
+
+  const cl = document.getElementById('card-left');
+  const cr = document.getElementById('card-right');
+
+  cl.className = 'card card-left';
+  cr.className = 'card card-right';
+
+  document.getElementById('type-left').textContent = currentLeft.type === "wild" ? "?" : currentLeft.type;
+  document.getElementById('flag-left').textContent = currentLeft.flag;
+  document.getElementById('name-left').textContent = currentLeft.name;
+  document.getElementById('tap-left').textContent = "Tap to choose";
+  document.getElementById('tap-left').classList.remove('hidden');
+
+  document.getElementById('type-right').textContent = currentRight.type === "wild" ? "?" : currentRight.type;
+  document.getElementById('flag-right').textContent = currentRight.flag;
+  document.getElementById('name-right').textContent = currentRight.name;
+  document.getElementById('tap-right').textContent = "Tap to choose";
+  document.getElementById('tap-right').classList.remove('hidden');
+
+  // Remove old reveal elements
+  document.querySelectorAll('.pop-reveal, .pick-badge, .crown').forEach(el => el.remove());
+
+  document.getElementById('fact-card').classList.add('hidden');
+  document.getElementById('next-btn').classList.add('hidden');
+  document.getElementById('gameover').classList.add('hidden');
+  document.getElementById('gameover').innerHTML = '';
+  document.getElementById('ad-postgame').style.display = 'none';
+
+  // Animate in
+  const vc = document.getElementById('vs-container');
+  vc.style.opacity = '0'; vc.style.transform = 'translateY(8px)';
+  setTimeout(() => { vc.style.opacity = '1'; vc.style.transform = 'translateY(0)'; }, 50);
+
+  phase = "guess";
+  updateStats();
+
+  // Pre-generate more pairs if running low
+  if (pairIdx >= pairs.length - 3) {
+    pairs = pairs.concat(generatePairs());
+  }
+}
+
+function choose(side) {
+  if (phase !== "guess") return;
+
+  const chosen = side === "left" ? currentLeft : currentRight;
+  const other = side === "left" ? currentRight : currentLeft;
+  const correct = chosen.population >= other.population;
+
+  totalPlayed++;
+  localStorage.setItem('pop-played', totalPlayed);
+
+  const cl = document.getElementById('card-left');
+  const cr = document.getElementById('card-right');
+
+  // Apply winner/loser styles
+  cl.className = 'card revealed ' + (winner === 'left' ? 'winner' : 'loser');
+  cr.className = 'card revealed ' + (winner === 'right' ? 'winner' : 'loser');
+
+  // Hide tap text
+  document.getElementById('tap-left').classList.add('hidden');
+  document.getElementById('tap-right').classList.add('hidden');
+
+  // Show population reveals
+  ['left', 'right'].forEach(s => {
+    const item = s === 'left' ? currentLeft : currentRight;
+    const isWin = winner === s;
+    const card = document.getElementById('card-' + s);
+
+    const reveal = document.createElement('div');
+    reveal.className = 'pop-reveal';
+    reveal.innerHTML = `
+      <div class="pop-label">Population</div>
+      <div class="pop-number ${isWin ? 'win' : 'lose'}">${fmtPop(item.population)}</div>
+      <div class="pop-full">${fmtFull(item.population)}</div>
+    `;
+    card.appendChild(reveal);
+
+    // Crown on winner
+    if (isWin) {
+      const crown = document.createElement('div');
+      crown.className = 'crown';
+      crown.textContent = '👑';
+      card.appendChild(crown);
+    }
+
+    // Pick badge on chosen
+    if (s === side) {
+      const badge = document.createElement('div');
+      badge.className = 'pick-badge ' + (correct ? 'pick-correct' : 'pick-wrong');
+      badge.textContent = correct ? '✓ PICK' : '✗ PICK';
+      card.appendChild(badge);
+    }
+  });
+
+  // Show fact
+  const ratio = Math.max(currentLeft.population, currentRight.population) / Math.min(currentLeft.population, currentRight.population);
+  const ratioLabel = ratio < 1.5 ? "Razor close!" : ratio < 3 ? "Tight one" : ratio < 8 ? "Tricky" : "Surprising";
+  const winnerItem = winner === 'left' ? currentLeft : currentRight;
+
+  document.getElementById('fact-label').textContent = ratioLabel;
+  document.getElementById('fact-text').textContent = winnerItem.fact;
+  document.getElementById('fact-card').classList.remove('hidden');
+
+  if (correct) {
+    streak++;
+    totalCorrect++;
+    localStorage.setItem('pop-correct', totalCorrect);
+    if (streak > bestStreak) { bestStreak = streak; localStorage.setItem('pop-best', bestStreak); }
+    phase = "reveal";
+    document.getElementById('next-btn').classList.remove('hidden');
+  } else {
+    phase = "gameover";
+    showGameOver();
+  }
+
+  updateStats();
+}
+
+function nextPair() {
+  pairIdx++;
+  renderPair();
+}
+
+function showGameOver() {
+  const el = document.getElementById('gameover');
+  el.classList.remove('hidden');
+  document.getElementById('ad-postgame').style.display = 'flex';
+
+  const title = streak === 0 ? "Oops!" : streak < 5 ? "Nice try!" : streak < 10 ? "Great run!" : streak < 20 ? "Amazing!" : "Legendary!";
+
+  el.innerHTML = `
+    <div class="go-title">${title}</div>
+    <div class="go-sub">You got <strong style="color:#fff">${streak}</strong> in a row</div>
+    <div class="go-btns">
+      <button class="share-btn" id="share-btn" onclick="shareResult()">📋 Share</button>
+      <button class="play-again-btn" onclick="restart()">Play again</button>
+    </div>
+  `;
+}
+
+function shareResult() {
+  const text = `Populle 🌍 — ${streak} in a row!\nCan you guess which has more people?\nhttps://populle.com`;
+  if (navigator.share) {
+    navigator.share({ title: 'Populle', text: text }).catch(() => {});
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(text);
+    document.getElementById('share-btn').textContent = '✓ Copied!';
+    setTimeout(() => { document.getElementById('share-btn').textContent = '📋 Share'; }, 2500);
+  }
+}
+
+function restart() {
+  streak = 0;
+  pairs = generatePairs();
+  pairIdx = 0;
+  renderPair();
+}
+
+// ─── Init ───────────────────────────────────────────────────────────────────
+pairs = generatePairs();
+renderPair();
+</script>
+
+</body>
+</html>
